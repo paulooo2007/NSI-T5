@@ -25,7 +25,7 @@ for indice in range(space.Ennemi.NbEnnemis):
     
 ### BOUCLE DE JEU  ###
 running = True # variable pour laisser la fenêtre ouverte
-
+niveau = 1
 while running : # boucle infinie pour laisser la fenêtre ouverte
     # dessin du fond
     screen.blit(fond,(0,0))
@@ -52,18 +52,24 @@ while running : # boucle infinie pour laisser la fenêtre ouverte
     for ennemi in listeEnnemis:
         if tir.toucher(ennemi):
             ennemi.disparaitre()
-            player.marquer()
-    print(f"Score = {player.score} points")
+            player.marquer(ennemi.type)
+    #print(f"Score = {player.score} points")
     # placement des objets
     # le joueur
     player.deplacer()
-    screen.blit(tir.image,[tir.depart,tir.hauteur]) # appel de la fonction qui dessine le vaisseau du joueur        
+    screen.blit(player.image,[player.position,500]) # appel de la fonction qui dessine le vaisseau du joueur
     # la balle
     tir.bouger()
-    screen.blit(player.image,[player.position,500]) # appel de la fonction qui dessine le vaisseau du joueur
+    screen.blit(tir.image,[tir.depart,tir.hauteur]) # appel de la fonction qui dessine la balle du joueur        
     # les ennemis
     for ennemi in listeEnnemis:
         ennemi.avancer()
         screen.blit(ennemi.image,[ennemi.depart, ennemi.hauteur]) # appel de la fonction qui dessine le vaisseau du joueur
-    clock.tick(20)    
+    clock.tick(20)
+    if player.score > 4:
+        if niveau == 1:
+            niveau = 2
+            print("Niveau 2")
+            for ennemi in listeEnnemis:
+                ennemi.vitesse *= 2.2
     pygame.display.update() # pour ajouter tout changement à l'écran

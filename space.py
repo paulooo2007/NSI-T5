@@ -10,7 +10,7 @@ class Joueur() : # classe pour créer le vaisseau du joueur
         self.vitesse = 12
         self.score = 0
         self.nb_tirs = 0 
-                
+               
 
     def deplacer(self) :
         if (self.sens == "droite") and (self.position < 740):
@@ -22,8 +22,8 @@ class Joueur() : # classe pour créer le vaisseau du joueur
         self.sens = "O"
         self.nb_tirs += 1
         
-    def marquer(self):
-        self.score = self.score + 1
+    def marquer(self, score):
+        self.score = self.score + score
         
         
     def ratio(self):
@@ -84,5 +84,21 @@ class Ennemi():
         elif (self.type ==2):
             self.image = pygame.image.load("invader2.png")
             self.vitesse = 2
-
+            
     
+class Niveau:
+    def __init__(self):
+        self.ennemis = [Ennemi(15) for _ in range(10)]  
+
+    def mettre_a_jour(self):
+        for ennemi in self.ennemis:
+            ennemi.avancer(5)
+
+    def dessiner(self, surface):
+        for ennemi in self.ennemis:
+            surface.blit(ennemi.image, (ennemi.depart, ennemi.hauteur))
+
+                        
+        
+        
+            

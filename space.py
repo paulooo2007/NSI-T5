@@ -79,11 +79,10 @@ class Ennemi():
         self.hauteur = 10
         self.type = random.randint(1,2)
         if  (self.type == 1):
-            self.image = pygame.image.load("invader1.png")
-            self.vitesse = 1
+            self.image = pygame.image.load("invader1.png") 
         elif (self.type ==2):
             self.image = pygame.image.load("invader2.png")
-            self.vitesse = 2
+            
             
     
 class Niveau:

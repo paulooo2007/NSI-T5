@@ -71,5 +71,5 @@ while running : # boucle infinie pour laisser la fenêtre ouverte
             niveau = 2
             print("Niveau 2")
             for ennemi in listeEnnemis:
-                ennemi.vitesse *= 2.2
+                ennemi.vitesse *= 1.9
     pygame.display.update() # pour ajouter tout changement à l'écran

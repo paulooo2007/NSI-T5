@@ -10,8 +10,8 @@ class Joueur() : # classe pour créer le vaisseau du joueur
         self.vitesse = 12
         self.score = 0
         self.nb_tirs = 0 
-               
-
+        self.coeur = 5      
+    
     def deplacer(self) :
         if (self.sens == "droite") and (self.position < 740):
             self.position = self.position + self.vitesse
@@ -25,6 +25,8 @@ class Joueur() : # classe pour créer le vaisseau du joueur
     def marquer(self, score):
         self.score = self.score + score
         
+    def perdrecoeur():
+        self.coeur -= 1
         
     def ratio(self):
         if self.nb_tirs == 0:
@@ -98,6 +100,6 @@ class Niveau:
             surface.blit(ennemi.image, (ennemi.depart, ennemi.hauteur))
 
                         
-        
+
         
             

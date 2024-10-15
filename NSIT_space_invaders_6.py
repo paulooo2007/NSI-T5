@@ -5,13 +5,15 @@ import sys # pour fermer correctement l'application
 # lancement des modules inclus dans pygame
 pygame.init() 
 clock = pygame.time.Clock()
-font = pygame.font.Font(None, 36)
+f = pygame.font.Font(None, 36)
 # création d'une fenêtre de 800 par 600
 screen = pygame.display.set_mode((800,600))
 pygame.display.set_caption("Space Invaders") 
 # chargement de l'image de fond
 fond = pygame.image.load('background.png')
-
+def persocoeur():
+    texte_score = f.render(f'coeur: {player.coeur}', True, (255, 255, 255))
+    screen.blit(texte_score, (10,550))
 # creation du joueur
 player = space.Joueur()
 # creation de la balle
@@ -23,13 +25,22 @@ for indice in range(space.Ennemi.NbEnnemis):
     vaisseau = space.Ennemi()
     listeEnnemis.append(vaisseau)
     
+victoire = False
+f_victoire = pygame.font.Font(None,50)
+def Niveau(n):
+    message_victoire = f_victoire.render('Niveau '+str(n), True, (0, 255, 0))
+    screen.blit(message_victoire, (650, 5))
+    
+
+    
 ### BOUCLE DE JEU  ###
+
 running = True # variable pour laisser la fenêtre ouverte
 niveau = 1
 while running : # boucle infinie pour laisser la fenêtre ouverte
     # dessin du fond
     screen.blit(fond,(0,0))
-    text = font.render(f'Score: {player.score}', True, (255, 0, 0))
+    text = f.render(f'Score: {player.score}', True, (255, 0, 0))
     screen.blit(text, (10, 10))
     ### Gestion des événements  ###
     for event in pygame.event.get(): # parcours de tous les event pygame dans cette fenêtre
@@ -47,12 +58,16 @@ while running : # boucle infinie pour laisser la fenêtre ouverte
                 player.tirer()
                 tir.etat = "tiree"
 
+                
+    persocoeur()
     ### Actualisation de la scene ###
     # Gestions des collisions
+    
     for ennemi in listeEnnemis:
         if tir.toucher(ennemi):
             ennemi.disparaitre()
             player.marquer(ennemi.type)
+                
     #print(f"Score = {player.score} points")
     # placement des objets
     # le joueur
@@ -71,5 +86,16 @@ while running : # boucle infinie pour laisser la fenêtre ouverte
             niveau = 2
             print("Niveau 2")
             for ennemi in listeEnnemis:
-                ennemi.vitesse *= 1.9
+                ennemi.vitesse *= 1.5
+                
+    if player.score > 8:
+        if niveau == 2:
+            niveau = 3
+            print("Niveau 3")
+            for ennemi in listeEnnemis:
+                ennemi.vitesse *= 1.8
+                
+
+    Niveau(niveau)
+
     pygame.display.update() # pour ajouter tout changement à l'écran

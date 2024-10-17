@@ -1,3 +1,4 @@
+
 import pygame  # necessaire pour charger les images et les sons
 import random
 import math
@@ -25,7 +26,7 @@ class Joueur() : # classe pour créer le vaisseau du joueur
     def marquer(self, score):
         self.score = self.score + score
         
-    def perdrecoeur():
+    def perdrecoeur(self):
         self.coeur -= 1
         
     def ratio(self):
@@ -33,15 +34,41 @@ class Joueur() : # classe pour créer le vaisseau du joueur
             return 0
         return self.nb_kills / self.nb_tirs
 
-class Balle() :
+
+
+class Balle:
     def __init__(self, tireur):
         self.tireur = tireur
-        self.depart = tireur.position + 16
-        self.hauteur = 492
+        self.depart = tireur.position + 16  # Position initiale de la balle
+        self.hauteur = 492  # Position y de la balle
         self.image = pygame.image.load("balle.png")
         self.etat = "chargee"
-        self.vitesse = 100
+        self.vitesse = 100  # Vitesse de déplacement de la balle
         self.nb_kills = 0
+
+    def bouger(self):
+        # Met à jour la position de la balle
+        if self.etat == "chargee":
+            self.depart = self.tireur.position + 16
+            self.hauteur = 492
+        elif self.etat == "tiree":
+            self.hauteur -= self.vitesse
+        
+        if self.hauteur < 0:
+            self.etat = "chargee"
+
+    def toucher(self, boss):
+        # Vérifie si la balle touche le boss
+        if (self.depart < boss.position + boss.image.get_width() and
+            self.depart + self.image.get_width() > boss.position and
+            self.hauteur < boss.hauteur + boss.image.get_height() and
+            self.hauteur + self.image.get_height() > boss.hauteur):
+            boss.toucher()  # Appelle la méthode pour réduire les PV du boss
+            return True
+        return False
+
+
+
     
     def bouger(self):
         if self.etat == "chargee":
@@ -99,7 +126,25 @@ class Niveau:
         for ennemi in self.ennemis:
             surface.blit(ennemi.image, (ennemi.depart, ennemi.hauteur))
 
-                        
 
-        
-            
+class Boss:
+    def __init__(self):
+        image_originale = pygame.image.load('boss.png')
+        self.image = pygame.transform.scale(image_originale, (100, 100))  
+        self.position = 300  
+        self.hauteur = 50    
+        self.vitesse = 1     
+        self.coins = 10      # Points de vie du boss
+
+    def avancer(self):
+        if self.position <= 0 or self.position >= 700:
+            self.vitesse = -self.vitesse
+        self.position += self.vitesse
+
+    def est_vaincu(self):
+        return self.coins <= 0
+
+    def toucher(self):
+        self.coins -= 1  # Réduit les points de vie du boss
+        if self.coins < 0:  # Ne pas permettre des PV négatifs
+            self.coins = 0

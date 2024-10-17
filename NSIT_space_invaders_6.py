@@ -1,3 +1,4 @@
+
 import pygame # importation de la librairie pygame
 import space
 import sys # pour fermer correctement l'application
@@ -8,12 +9,20 @@ clock = pygame.time.Clock()
 f = pygame.font.Font(None, 36)
 # création d'une fenêtre de 800 par 600
 screen = pygame.display.set_mode((800,600))
-pygame.display.set_caption("Space Invaders") 
+pygame.display.set_caption("Space Invaders")
+boss = None  # Le boss sera créé lorsque le joueur atteint un certain niveau
 # chargement de l'image de fond
 fond = pygame.image.load('background.png')
 def persocoeur():
     texte_score = f.render(f'coeur: {player.coeur}', True, (255, 255, 255))
     screen.blit(texte_score, (10,550))
+    
+def afficher_points_de_vie_boss():
+    if boss:
+        texte_pv_boss = f.render(f'Boss: {boss.coins} PV', True, (255, 0, 0))
+        screen.blit(texte_pv_boss, (650, 550))  # Position du texte sur l'écran
+    
+
 # creation du joueur
 player = space.Joueur()
 # creation de la balle
@@ -37,65 +46,78 @@ def Niveau(n):
 
 running = True # variable pour laisser la fenêtre ouverte
 niveau = 1
-while running : # boucle infinie pour laisser la fenêtre ouverte
+while running:  # boucle infinie pour laisser la fenêtre ouverte
     # dessin du fond
-    screen.blit(fond,(0,0))
+    screen.blit(fond, (0, 0))
     text = f.render(f'Score: {player.score}', True, (255, 0, 0))
     screen.blit(text, (10, 10))
-    ### Gestion des événements  ###
-    for event in pygame.event.get(): # parcours de tous les event pygame dans cette fenêtre
-        if event.type == pygame.QUIT : # si l'événement est le clic sur la fermeture de la fenêtre
-            running = False # running est sur False
-            sys.exit() # pour fermer correctement
-       
-       # gestion du clavier
-        if event.type == pygame.KEYDOWN : # si une touche a été tapée KEYUP quand on relache la touche
-            if event.key == pygame.K_LEFT : # si la touche est la fleche gauche
-                player.sens = "gauche" # on déplace le vaisseau de 1 pixel sur la gauche
-            if event.key == pygame.K_RIGHT : # si la touche est la fleche droite
-                player.sens = "droite" # on déplace le vaisseau de 1 pixel sur la gauche
-            if event.key == pygame.K_SPACE : # espace pour tirer
+
+    # Gestion des événements
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+            sys.exit()
+        
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                player.sens = "gauche"
+            if event.key == pygame.K_RIGHT:
+                player.sens = "droite"
+            if event.key == pygame.K_SPACE:
                 player.tirer()
                 tir.etat = "tiree"
 
-                
+    if boss:  # Si le boss existe
+        boss.avancer()  # Déplace le boss
+        screen.blit(boss.image, [boss.position, boss.hauteur])  # Dessine le boss
+
+        # Vérifie si le tir touche le boss
+        if tir.toucher(boss):
+            print("Le boss a été touché ! PV restants :", boss.coins)  # Affiche les PV restants
+            boss.toucher()  # Appelle la méthode pour réduire les PV du boss
+            
+            # Vérifie si le boss est vaincu
+            if boss.est_vaincu():
+                print("Le boss est vaincu !")
+                boss = None  # Supprime le boss après avoir été vaincu
+                player.score += 5  # Bonus de score
+
     persocoeur()
-    ### Actualisation de la scene ###
+    afficher_points_de_vie_boss()
+
     # Gestions des collisions
-    
     for ennemi in listeEnnemis:
         if tir.toucher(ennemi):
             ennemi.disparaitre()
             player.marquer(ennemi.type)
-                
-    #print(f"Score = {player.score} points")
+
     # placement des objets
-    # le joueur
     player.deplacer()
-    screen.blit(player.image,[player.position,500]) # appel de la fonction qui dessine le vaisseau du joueur
-    # la balle
+    screen.blit(player.image, [player.position, 500])  # Vaisseau du joueur
     tir.bouger()
-    screen.blit(tir.image,[tir.depart,tir.hauteur]) # appel de la fonction qui dessine la balle du joueur        
-    # les ennemis
+    screen.blit(tir.image, [tir.depart, tir.hauteur])  # Balle du joueur
     for ennemi in listeEnnemis:
         ennemi.avancer()
-        screen.blit(ennemi.image,[ennemi.depart, ennemi.hauteur]) # appel de la fonction qui dessine le vaisseau du joueur
+        screen.blit(ennemi.image, [ennemi.depart, ennemi.hauteur])  # Ennemis
+
     clock.tick(20)
-    if player.score > 4:
-        if niveau == 1:
-            niveau = 2
-            print("Niveau 2")
-            for ennemi in listeEnnemis:
-                ennemi.vitesse *= 1.5
-                
-    if player.score > 8:
-        if niveau == 2:
-            niveau = 3
-            print("Niveau 3")
-            for ennemi in listeEnnemis:
-                ennemi.vitesse *= 1.8
-                
+
+    if player.score > 4 and niveau == 1:
+        niveau = 2
+        print("Niveau 2")
+        for ennemi in listeEnnemis:
+            ennemi.vitesse *= 1.5
+    
+    if player.score > 8 and niveau == 2:
+        niveau = 3
+        print("Niveau 3")
+        for ennemi in listeEnnemis:
+            ennemi.vitesse *= 1.8
+            
+    if player.score > 12 and boss is None:  # Le boss apparaît quand le score dépasse 12
+        boss = space.Boss()
+        print("Boss apparaît !")
 
     Niveau(niveau)
+    pygame.display.update()  # Pour ajouter tout changement à l'écran
 
-    pygame.display.update() # pour ajouter tout changement à l'écran
